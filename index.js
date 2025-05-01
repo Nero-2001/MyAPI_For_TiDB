@@ -36,6 +36,26 @@ app.get('/attractions', (req, res) => {
     });
 });
 
+app.get('/attractions/:id', (req, res) => {
+    const attractionId = req.params.id;
+  
+    connection.query(
+      'SELECT * FROM attractions WHERE id = ?',
+      [attractionId],
+      (err, results) => {
+        if (err) {
+          return res.status(500).json({ error: 'Database query failed' });
+        }
+  
+        if (results.length === 0) {
+          return res.status(404).json({ error: 'Attraction not found' });
+        }
+  
+        res.json(results[0]);
+      }
+    );
+  });
+
 // เริ่มต้น server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
