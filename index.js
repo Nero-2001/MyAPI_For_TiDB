@@ -2,12 +2,28 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
 require('dotenv').config();
+const { URL } = require('url');
+
 
 const app = express();
 app.use(cors()); // อย่าลืมเปิด cors ถ้ามี frontend
 
+// แปลง DATABASE_URL เป็น object
+const dbUrl = new URL(process.env.DATABASE_URL);
+
+
 // สร้าง connection จาก DATABASE_URL
-const connection = mysql.createConnection(process.env.DATABASE_URL);
+// const connection = mysql.createConnection(process.env.DATABASE_URL);
+
+// สร้าง connection
+const connection = mysql.createConnection({
+    host: dbUrl.hostname,
+    user: dbUrl.username,
+    password: dbUrl.password,
+    database: dbUrl.pathname.replace('/', ''),
+    port: parseInt(dbUrl.port),
+    ssl: JSON.parse(dbUrl.searchParams.get('ssl')) // จะอ่าน {"rejectUnauthorized":true} ได้ถูก
+  });
 
 // route สำหรับดึงข้อมูลทั้งหมดจากตาราง attractions
 app.get('/attractions', (req, res) => {
